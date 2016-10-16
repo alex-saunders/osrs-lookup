@@ -1,0 +1,3 @@
+[16-Jul-2015 15:05:04 UTC] PHP Fatal error:  Call to a member function fetch_assoc() on a non-object in /home/howdybaby/public_html/getitems.php on line 23
+[16-Jul-2015 15:05:49 UTC] PHP Fatal error:  Call to a member function fetch_assoc() on a non-object in /home/howdybaby/public_html/getitems.php on line 23
+[29-Jul-2015 13:55:23 UTC] PHP Fatal error:  main(): Cannot write property in /home/howdybaby/public_html/getsetup.php on line 178

@@ -1,0 +1,579 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <title>OSRSLookup</title>
+      <link rel="shortcut icon" href="/img_assets/icon/levels.ico">
+      <LINK href="/style/styles.css" rel="stylesheet" type="text/css">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+      <script>
+      	var ar;
+      	var arlength;
+      
+         $( document ).ready(function() {
+         
+         $("html, body").animate({ scrollTop: 0 }, "fast");
+         window.displayBoxIndex = -1;
+		 
+		 $("#item_nav").css("display", "none");
+         
+         $("#main_form").keypress(function(e){
+			 if ((e.which == 13) && (($("#txtHint").css("display")) !== "none")) {
+				 return false;
+		   }
+		   });
+         
+		var names = '<?
+         $servername = "localhost";
+             $username = "howdybaby123";
+             $password = "290596Curtains";
+             $dbname = "osrslookup";
+             
+             // Create connection
+             $conn = new mysqli($servername, $username, $password, $dbname);
+             // Check connection
+             if ($conn->connect_error) {
+                  die("Connection failed: " . $conn->connect_error);
+             } 
+             
+             $sql = "SELECT name FROM weapons;";
+             $result = $conn->query($sql);
+             
+             if ($result->num_rows > 0) {
+                  // output data of each row
+                  while($row = $result->fetch_assoc()) {
+                  	echo $row["name"]."+";
+                  };
+             } 
+             
+             $conn->close();
+             ?>';
+             ar = names.split("+");
+             arlength = ar.length - 1;
+             
+         });
+         
+         
+         $( window ).resize(function() {
+         
+         var width = $('#txtInput').width();
+         $("#txtHint").width(width);
+         
+         });
+         
+         $(document).scroll(function() {
+              if ($(this).scrollTop() > 40) {
+               $("#menu-bar").stop().animate({backgroundColor: "#4a4a4a", opacity: '0.5'}, 300);
+              } else {
+            $("#menu-bar").stop().animate({backgroundColor: "#EAEAEA", opacity: '1.0'}, 300);   
+              }
+         });
+         
+         function armourDialog() {
+	         alert('content coming soon, sorry!');
+         }
+         
+        function openModal(str) {
+         var docWidth = ($(document).width());
+         var docHeight = ($(document).height());
+         var containerHeight = ($("#modal").height());
+         var winH = $(window).height();
+         var top = (winH/2)-containerHeight;
+         $("#fade").width(docWidth);
+         $("#fade").height(docHeight);
+         document.getElementById('modal').style.top = (top + "px");
+		 document.getElementById('modal').style.display = 'block';
+		 document.getElementById('fade').style.display = 'block';
+		 document.getElementById('modal_text').innerHTML = str;
+		}
+		
+		function closeModal() {
+		    document.getElementById('modal').style.display = 'none';
+		    document.getElementById('fade').style.display = 'none';
+		}
+         
+         function generate_item_containers(str) {
+         	$("#itemContainers").html("");
+	         if ((str == "--") ) {
+	         	$("#step2_hr").remove();
+	         	$("#itemContainers").html("");
+		         alert('Please choose how many items you want to compare');
+	         } else {
+	         	$("#step2_hr").remove();
+	         	$("#itemContainers").html("");
+	         	var html = "<span class='Rosario_span'><br/><b>Selected Items:</b></span><br/><br/>";
+   	         	$(html).hide().appendTo("#itemContainers").fadeIn(1000);
+	         			
+		         var amount = parseInt(str);
+		         for (var i = 1; i <= amount; i++) {   
+		         		j = i -1;                
+			         	var item_html = "<table width='90%' cellspacing='0' style=''>"+
+                        "<tr>"+
+                        "</tr>"+
+                        "<tr>"+
+                        "<td width='1%' class='left_item_box' id='left_item_box_id' style=''>"+
+                        "&#128270;"+
+                        "</td>"+
+                        "<td width='30%'>"+
+                        "<input type='text' class='txtInput' value='' style='width:80%; height:30px' onkeyup='showHint(this.value, event, "+i+")'"+" 									onkeydown='navigateTest(event, "+i+")' placeholder='item "+i+"' autocomplete='off'>"+
+                        // "<button style='width:15%; padding:5px 10px; margin-left:10px;' class='button' id='item_add' onclick='addItem("+j+")'>Add</button>"+
+                        "</td>"+
+                        "</tr>"+
+                        "<tr>"+
+                        "<td>"+
+                        "</td>"+
+                        "<td class='txtHint'>"+
+                        "</td>"+
+                        "</tr>"+
+                        "</table>"+
+                        "<br/>";
+                        $(item_html).hide().appendTo("#itemContainers").fadeIn(1000);
+		         }
+		         if (amount > 1) {
+			         var button_html = "<div id='compare_scroll_point'></div><br/><button class='button' onclick='itemtables()' id='compare_button'"+
+			         "style='opacity:0.5;' disabled>Compare</button></div>";
+		         } else {
+			         var button_html = "<div id='compare_scroll_point'></div><br/><button class='button' onclick='itemtables()' id='compare_button'"+
+			         "style='opacity:0.5;' disabled>Lookup</button></div>";
+		         }
+		         $(button_html).hide().appendTo("#itemContainers").fadeIn(1000);
+		         $("html, body").animate({ scrollTop: $('#scrollpoint').offset().top - 40 }, 1000);
+	         }
+         }  
+
+         function showHint(str, event, eq) {
+         	eq = eq-1;
+         	var x = event.which || event.keyCode;
+         	
+            if (x == 40) {
+                    return;
+                    }
+               if (x == 38) {
+                    return;
+         		}
+         	if (x == 13) {
+         		EnterPressed(eq);
+         		return;
+         	} 
+              	if ((x == 27) || (x == 9)) {
+               	$(".txtHint").eq(eq).html("");
+         	  	$(".txtHint").eq(eq).css("display", "none");
+         	  	return;
+              	}
+              else {
+              displayBoxIndex = -1;
+         	$(".txtHint").eq(eq).stop();
+              if (str.length == 0) { 
+                  $(".txtHint").eq(eq).html("");
+                  return;
+              } else {
+              $(".txtHint").eq(eq).html("");
+              var count = 0;
+              for (var i = 0; i < arlength; i++) {
+              var stringMatch = new RegExp(str, "i")
+              	 if(ar[i].toLowerCase().indexOf(str.toLowerCase()) > -1)
+	             //if(ar[i].match(stringMatch)) 
+	             {
+	             count = count + 1;
+	             	//if (count <= 5) {
+	             		var res = ar[i].split(' ').join('_');
+		             	$(".txtHint").eq(eq).append("<div onclick=updateinput('"+res+"',"+eq+") class='suggestSpan' id='suggestSpanID'>"+ar[i]+"</div>");
+		             //}
+	             }
+             }
+                  
+                  var width = $('.txtInput').eq(eq).width();
+         		 $(".txtHint").eq(eq).width(width);			
+         		 $(".txtHint").eq(eq).css("display", "block");
+         		 $(".txtHint").eq(eq).scrollTop(0);
+         		 }
+              }
+         }
+         
+         function navigateTest(event, eq) {
+			 eq = eq-1;
+			 var x = event.which || event.keyCode;
+			 if (x == 40) {
+                    Navigate(1, eq);
+                    return;
+                    }
+               if (x == 38) {
+                    Navigate(-1, eq);
+                    return;
+         		}
+		 }
+         
+         var displayBoxIndex;
+         
+         	function Navigate(diff, eq) {
+             displayBoxIndex += diff;
+             var oBoxCollection = $(".suggestSpan");
+             if (displayBoxIndex >= oBoxCollection.length)
+                  displayBoxIndex = 0;
+             if (displayBoxIndex < 0)
+                  displayBoxIndex = oBoxCollection.length - 1;
+             var cssClass = "suggestSpanHover";
+             oBoxCollection.removeClass(cssClass).eq(displayBoxIndex).addClass(cssClass);
+             var pos = $(".suggestSpanHover").position().top;
+             if (pos > 125) {
+	         		 current = $(".txtHint").eq(eq).scrollTop()
+	         		 $(".txtHint").eq(eq).scrollTop(current + (pos -124));
+
+             }
+             if (pos < 0) {
+	             current = $(".txtHint").eq(eq).scrollTop()
+				 $(".txtHint").eq(eq).scrollTop(current + pos);
+             }
+	             
+         }
+         
+         function EnterPressed(eq) {
+         	var selectedItem = $(".suggestSpanHover");
+         	var selectedValue = selectedItem.text();
+         	if (selectedValue !== "") {
+         	$(".txtHint").eq(eq).html("");
+         	$(".txtHint").eq(eq).css("display", "none");
+         	$(".txtInput").eq(eq).val(selectedValue);
+          	addItem(eq);
+         	checkItems(eq);
+         	} else {
+         		$(".txtHint").eq(eq).html("");
+		 		$(".txtHint").eq(eq).css("display", "none");
+	         	addItem(eq);
+         	}
+         }
+         
+         $('html').click(function() {
+         for (var i = 0; i <= $(".txtHint").length; i++) {
+         	 $(".txtHint").eq(i).html("");
+         	 $(".txtHint").eq(i).css("display", "none");
+         }
+         
+         });
+         
+         function updateinput(str, eq) {
+         	str = str.split("_").join(" ");
+         	$(".txtHint").eq(eq).html("");
+         	$(".txtHint").eq(eq).css("display", "none");
+         	$(".txtInput").eq(eq).val(str);
+         	addItem(eq);
+         }
+         
+         function addItem(eq) {
+         	if ($(".txtInput").eq(eq).val() == "") {
+	         	alert('No Item Entered');
+         	} else {
+         		$("body").css("cursor", "progress");
+                  var xmlhttp = new XMLHttpRequest();
+                  xmlhttp.onreadystatechange = function() {
+                      if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                      		$("body").css("cursor", "default");	
+                      		var value = xmlhttp.responseText;
+                      		if (value.length > 1) {
+                      			$(".txtInput").eq(eq).val(xmlhttp.responseText);
+								checkItems(eq);
+                      		} else {
+	                      		alert('That item does not exist.\nPlease check your spelling & try again.');
+	                      		$('.txtInput').eq(eq).val("");
+                      		}
+                      }
+                  }
+                  var q = $(".txtInput").eq(eq).val();
+                  xmlhttp.open("GET", "getitemexists.php?q="+q, true);
+                  xmlhttp.send();
+         	}
+         }
+         
+         function removeItem(i) {
+	         document.getElementById('item'+i).value = "";
+	         document.getElementById('txtInput').disabled = false;
+	         document.getElementById('item_add').disabled = false;
+	         document.getElementById('compare_button').disabled = true;
+			 $("#compare_button").css("opacity", "0.5");
+
+         }
+         
+         function checkItems(eq) {
+         	 var full = "true";
+			 var oItemContainerCollection = $(".txtInput");
+			 for (var i = 0; i <= (oItemContainerCollection.length - 1); i++) {
+				 if ($(".txtInput").eq(i).val() == ""){
+					 	full = "false"
+					 	break;
+					 }
+
+				 }
+				if (full == "true") {
+					document.getElementById('compare_button').disabled = false;
+					$("#compare_button").css("opacity", "1.0");
+				}		     
+		}
+		
+		function itemtables() {
+			openModal('<center>Looking Up <br/>Items . . .</center>');
+			var xmlhttp = new XMLHttpRequest();
+                  xmlhttp.onreadystatechange = function() {
+                      if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                      closeModal();	
+                      		var value = xmlhttp.responseText;
+                      		if (value.length > 1) {
+						  		document.getElementById("item_compare").innerHTML = xmlhttp.responseText;
+						  		$("#bottom_hr").css("display", "block");
+							  	compareitems();
+							  	$("#item_nav").css("display", "inline-block");
+						  		$("html, body").animate({ scrollTop: $('#compare_scroll_point').offset().top - 40 }, 1000);	
+                      		} else {
+	                      		alert('An Unexpected Error has occured, please try again');
+                      		}
+                      }
+                  }
+                  xmlhttp.open("GET", "getitems.php?1="+$(".txtInput").eq(0).val()+"&2="+$(".txtInput").eq(1).val()+"&3="+
+                  $(".txtInput").eq(0).val()+"_"+$(".txtInput").eq(1).val(), true);
+                  xmlhttp.send();
+		}
+         
+        function compareitems() {
+        if ((parseInt($(".stab_bonus").eq(0).html())) > (parseInt($(".stab_bonus").eq(1).html()))) {
+	        $(".stab_bonus").eq(0).css("color", "green");
+	        $(".stab_bonus").eq(1).css("color", "red");
+        } if ((parseInt($(".stab_bonus").eq(1).html())) > (parseInt($(".stab_bonus").eq(0).html()))) {
+	        $(".stab_bonus").eq(0).css("color", "red");
+	        $(".stab_bonus").eq(1).css("color", "green");
+        }
+        if ((parseInt($(".slash_bonus").eq(0).html())) > (parseInt($(".slash_bonus").eq(1).html()))) {
+	        $(".slash_bonus").eq(0).css("color", "green");
+	        $(".slash_bonus").eq(1).css("color", "red");
+        } if ((parseInt($(".slash_bonus").eq(1).html())) > (parseInt($(".slash_bonus").eq(0).html()))) {
+	        $(".slash_bonus").eq(0).css("color", "red");
+	        $(".slash_bonus").eq(1).css("color", "green");
+        }
+        if ((parseInt($(".crush_bonus").eq(0).html())) > (parseInt($(".crush_bonus").eq(1).html()))) {
+	        $(".crush_bonus").eq(0).css("color", "green");
+	        $(".crush_bonus").eq(1).css("color", "red");
+        } if ((parseInt($(".crush_bonus").eq(1).html())) > (parseInt($(".crush_bonus").eq(0).html()))) {
+	        $(".crush_bonus").eq(0).css("color", "red");
+	        $(".crush_bonus").eq(1).css("color", "green");
+        }
+        if ((parseInt($(".magic_attack_bonus").eq(0).html())) > (parseInt($(".magic_attack_bonus").eq(1).html()))) {
+	        $(".magic_attack_bonus").eq(0).css("color", "green");
+	        $(".magic_attack_bonus").eq(1).css("color", "red");
+        } if ((parseInt($(".magic_attack_bonus").eq(1).html())) > (parseInt($(".magic_attack_bonus").eq(0).html()))) {
+	        $(".magic_attack_bonus").eq(0).css("color", "red");
+	        $(".magic_attack_bonus").eq(1).css("color", "green");
+        }
+        if ((parseInt($(".ranged_attack_bonus").eq(0).html())) > (parseInt($(".ranged_attack_bonus").eq(1).html()))) {
+	        $(".ranged_attack_bonus").eq(0).css("color", "green");
+	        $(".ranged_attack_bonus").eq(1).css("color", "red");
+        } if ((parseInt($(".ranged_attack_bonus").eq(1).html())) > (parseInt($(".ranged_attack_bonus").eq(0).html()))) {
+	        $(".ranged_attack_bonus").eq(0).css("color", "red");
+	        $(".ranged_attack_bonus").eq(1).css("color", "green");
+        }
+        if ((parseInt($(".stab_defence").eq(0).html())) > (parseInt($(".stab_defence").eq(1).html()))) {
+	        $(".stab_defence").eq(0).css("color", "green");
+	        $(".stab_defence").eq(1).css("color", "red");
+        } if ((parseInt($(".stab_defence").eq(1).html())) > (parseInt($(".stab_defence").eq(0).html()))) {
+	        $(".stab_defence").eq(0).css("color", "red");
+	        $(".stab_defence").eq(1).css("color", "green");
+        }
+        if ((parseInt($(".slash_defence").eq(0).html())) > (parseInt($(".slash_defence").eq(1).html()))) {
+	        $(".slash_defence").eq(0).css("color", "green");
+	        $(".slash_defence").eq(1).css("color", "red");
+        } if ((parseInt($(".slash_defence").eq(1).html())) > (parseInt($(".slash_defence").eq(0).html()))) {
+	        $(".slash_defence").eq(0).css("color", "red");
+	        $(".slash_defence").eq(1).css("color", "green");
+        }
+        if ((parseInt($(".crush_defence").eq(0).html())) > (parseInt($(".crush_defence").eq(1).html()))) {
+	        $(".crush_defence").eq(0).css("color", "green");
+	        $(".crush_defence").eq(1).css("color", "red");
+        } if ((parseInt($(".crush_defence").eq(1).html())) > (parseInt($(".crush_defence").eq(0).html()))) {
+	        $(".crush_defence").eq(0).css("color", "red");
+	        $(".crush_defence").eq(1).css("color", "green");
+        }
+        if ((parseInt($(".magic_defence").eq(0).html())) > (parseInt($(".magic_defence").eq(1).html()))) {
+	        $(".magic_defence").eq(0).css("color", "green");
+	        $(".magic_defence").eq(1).css("color", "red");
+        } if ((parseInt($(".magic_defence").eq(1).html())) > (parseInt($(".magic_defence").eq(0).html()))) {
+	        $(".magic_defence").eq(0).css("color", "red");
+	        $(".magic_defence").eq(1).css("color", "green");
+        }
+        if ((parseInt($(".ranged_defence").eq(0).html())) > (parseInt($(".ranged_defence").eq(1).html()))) {
+	        $(".ranged_defence").eq(0).css("color", "green");
+	        $(".ranged_defence").eq(1).css("color", "red");
+        } if ((parseInt($(".ranged_defence").eq(1).html())) > (parseInt($(".ranged_defence").eq(0).html()))) {
+	        $(".ranged_defence").eq(0).css("color", "red");
+	        $(".ranged_defence").eq(1).css("color", "green");
+        }
+        if ((parseInt($(".strength_bonus").eq(0).html())) > (parseInt($(".strength_bonus").eq(1).html()))) {
+	        $(".strength_bonus").eq(0).css("color", "green");
+	        $(".strength_bonus").eq(1).css("color", "red");
+        } if ((parseInt($(".strength_bonus").eq(1).html())) > (parseInt($(".strength_bonus").eq(0).html()))) {
+	        $(".strength_bonus").eq(0).css("color", "red");
+	        $(".strength_bonus").eq(1).css("color", "green");
+        }
+        if ((parseInt($(".ranged_strength_bonus").eq(0).html())) > (parseInt($(".ranged_strength_bonus").eq(1).html()))) {
+	        $(".ranged_strength_bonus").eq(0).css("color", "green");
+	        $(".ranged_strength_bonus").eq(1).css("color", "red");
+        } if ((parseInt($(".ranged_strength_bonus").eq(1).html())) > (parseInt($(".ranged_strength_bonus").eq(0).html()))) {
+	        $(".ranged_strength_bonus").eq(0).css("color", "red");
+	        $(".ranged_strength_bonus").eq(1).css("color", "green");
+        }
+        if ((parseInt($(".magic_strength_bonus").eq(0).html())) > (parseInt($(".magic_strength_bonus").eq(1).html()))) {
+	        $(".magic_strength_bonus").eq(0).css("color", "green");
+	        $(".magic_strength_bonus").eq(1).css("color", "red");
+        } if ((parseInt($(".magic_strength_bonus").eq(1).html())) > (parseInt($(".magic_strength_bonus").eq(0).html()))) {
+	        $(".magic_strength_bonus").eq(0).css("color", "red");
+	        $(".magic_strength_bonus").eq(1).css("color", "green");
+        }
+        if ((parseInt($(".prayer_bonus").eq(0).html())) > (parseInt($(".prayer_bonus").eq(1).html()))) {
+	        $(".prayer_bonus").eq(0).css("color", "green");
+	        $(".prayer_bonus").eq(1).css("color", "red");
+        } if ((parseInt($(".prayer_bonus").eq(1).html())) > (parseInt($(".prayer_bonus").eq(0).html()))) {
+	        $(".prayer_bonus").eq(0).css("color", "red");
+	        $(".prayer_bonus").eq(1).css("color", "green");
+        }
+        if ((parseFloat($(".attack_speed").eq(0).html())) < (parseFloat($(".attack_speed").eq(1).html()))) {
+	        $(".attack_speed").eq(0).css("color", "green");
+	        $(".attack_speed").eq(1).css("color", "red");
+        } if ((parseFloat($(".attack_speed").eq(1).html())) < (parseFloat($(".attack_speed").eq(0).html()))) {
+	        $(".attack_speed").eq(0).css("color", "red");
+	        $(".attack_speed").eq(1).css("color", "green");
+        }
+        
+        }
+         
+         function scroll(str) {
+         	 
+	         var height = $("."+str).eq(0).position().top;
+	         $("html, body").animate({ scrollTop: height - 40 }, 1000);
+
+         }
+         
+         function testfunction() {
+	         alert('test');
+         }
+      </script>
+   </head>
+   <body>
+    <div id="fade"></div>
+    <div id="modal">
+	<img id="loader" src="/img_assets/loading.gif" /><br/><br/>
+	<span id="modal_text">
+	
+	</span>
+	</div>
+      <ul id="menu-bar">
+         <li><a href="index">OSRSLookup</a></li>
+         <li class="active"><a href="weaponlookup">Weapons</a></li>
+         <li><a href="#" onclick="armourDialog()">Armour</a></li>
+      </ul>
+      <div id="content">
+         <br/>
+         <br/>
+         <br/>
+         <table class="main_table" cellspacing="0" width="80%">
+            <tr>
+               <td>
+                  <img src="/img_assets/banner_top.gif" id="top_banner">
+                  <center>
+                     <table width="80%">
+                        <tr>
+                        </tr>
+                        <tr>
+                           <td height="20%" style="width:65%;">
+                              <div class="title_container">
+                                 <br/>
+                                 <b>
+                                 W
+                                 </b>
+                                 <span class="title_container_lower"> eapon &nbsp;&nbsp;&nbsp;Lookup
+                                 <br/>
+                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                 </span>
+                              </div>
+                           </td>
+                           <td style="padding:10px; padding-top:70px; vertical-align: top;">
+                           <img src="/img_assets/weapon_slot.png" style="position:absolute; height:200px;">
+                           </td>
+                        </tr>
+                        <tr>
+                        <td height="80%" style="vertical-align:top;">
+                        <span class='Rosario_span'><b>Step 1: </b>How many weapons do you want to lookup?</span>
+                        <br/>
+                        <div style="padding-top:10px;padding-bottom:10px;">
+                        <select id="itemAmount" onchange="generate_item_containers(document.getElementById('itemAmount').value);" style="width:50%; background-		color:#eaeaea;">
+                        <option value="--">--</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">More options coming soon!</option>
+                        </select>
+                        </div>
+                        <img src="/img_assets/custom_hr.png" id="scrollpoint" class="custom_hr_thin" style="margin-left:-10%; width:114%;">
+                        <br/>
+                        <br/>
+                        <div id="step2">
+                        <span class='Rosario_span'><br/><b>Step 2: </b>Search for the item names & add them to the selected items list</span>
+                        <br/>
+                        </div>
+                        <div id="itemContainers">
+                        
+                        </div>
+                        </td>
+                        </tr>
+                     </table>
+                     </center>
+                     <br/>
+                     </div>
+                     <img src="/img_assets/custom_hr.png" class="custom_hr">
+                     <br/>
+                     <br/>
+                     <center>
+                     <table width="80%" >
+                     <tr>
+                     </tr>
+                     <tr>
+                     <td colspan="2" class='Rosario_span'>
+                     <div id="item_nav">
+                     <!--Contents:
+                     <ol style="margin-top:0px;">
+                     <li style='text-align:left;'><span class='link' onclick="scroll('item_stats')">Item stats</span></li>
+                     <li style='text-align:left;'><span class='link' onclick="scroll('attack_speed')">Attack Speed</span></li>
+                     <li style='text-align:left;'><span class='link' onclick="scroll('attack_styles')">Attack styles</span></li>
+                     </ol> -->
+                     </div>
+                     </td>
+                     </tr>
+                     <tr id="item_compare">
+                     </tr>
+                     
+                     </table>
+                     </center>
+                     <br/>
+                     <img src="/img_assets/custom_hr.png" class="custom_hr" id="bottom_hr" style="display:none;">
+                     <center>
+                        <br/>
+                        <span class="sub_title_container" style="font-size:10px;">
+                        <a href='about' class='link'>
+                        About
+                        </a>
+                        | 
+                        <a href='about#donate' class='link'>
+                        Donate
+                        </a>
+                        <br/>
+                        Thanks to the 
+                        <a href='http://2007.runescape.wikia.com/wiki/2007scape_Wiki' class='link'>
+                        Oldschool Wiki 
+                        </a>
+                        For the Data & images
+                        <br/><br/>
+                        </span>
+                     </center>
+                     <img src="/img_assets/banner_top.gif" id="bottom_banner">
+               </td>
+            </tr>
+         </table>
+         <div style="height:100vh;">
+         </div>
+   </body>
+</html>
